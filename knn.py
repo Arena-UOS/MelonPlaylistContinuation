@@ -218,18 +218,3 @@ if __name__=="__main__":
     path = "."
     fname = f"knn_k{k}rho{int(rho * 10)}a{int(alpha * 10)}b{int(beta * 10)}_{sim_songs}{sim_tags}{sim_normalize}"
     pred.to_json(f'{path}/{fname}.json', orient='records')
-
-
-
-    # import pickle
-    # with open("bin/Xs.p", 'rb') as f:
-    #     Xs = pickle.load(f)
-    # x = Xs[0]
-    # X = Xs[1]
-    # XX = Xs[2]
-
-    # knn = KNN(100, sim_songs='cos', alpha=0.5, beta=0.5)
-    # knn.fit(x)
-    # for i in [2948, 3312, 3908, 5452, 5474, 18110, 18638, 21410, 22189]:
-    #     pred = knn.predict(X, start=i, end=i+1)
-    #     print(i, pred)
