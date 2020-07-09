@@ -169,8 +169,9 @@ if __name__=="__main__":
 
     ### 3. range setting - Neighbor.predict()
     ### 3.1 range(start, end); if end == None, then range(start, end of val)
-    ### 3.2 return type of Neighbor.predict() : pandas.DataFrame
-    pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, train=train, val=val).predict(end=10)
+    ### 3.2 auto_save: boolean; False(default)
+    ### 3.3 return type of Neighbor.predict() : pandas.DataFrame
+    pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, train=train, val=val).predict(end=None, auto_save=False)
     # print(pred)
 
     ### 4. save data
