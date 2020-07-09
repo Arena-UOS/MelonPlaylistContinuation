@@ -19,7 +19,7 @@ pow_beta = 0.3
 ### 3.1 range(start, end); if end == None, then range(start, end of val)
 ### 3.2 auto_save: boolean; False(default)
 ### 3.3 return type of Neighbor.predict() : pandas.DataFrame
-pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, train=train, val=val).predict(end=None, auto_save=False)
+pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, train=train, val=val).predict(start=0, end=None, auto_save=False)
 
 ### 4. save data
 path = "."
@@ -52,7 +52,7 @@ sim_normalize = False
 ### 3.3 return type of Neighbor.predict() : pandas.DataFrame
 pred = KNN(k=k, rho=rho, alpha=alpha, beta=beta, \
             sim_songs=sim_songs, sim_tags=sim_tags, sim_normalize=sim_normalize, \
-            train=train, val=val, verbose=True, version_check=True).predict(start=0, end=10, auto_save=False)
+            train=train, val=val, verbose=True, version_check=True).predict(start=0, end=None, auto_save=False)
 # print(pred)
 
 ### 4. save data
