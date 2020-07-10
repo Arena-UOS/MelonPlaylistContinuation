@@ -6,6 +6,7 @@
 from neighbor import Neighbor
 
 ### 1. load data
+song_meta = pd.read_json("res/song_meta.json")
 train = pd.read_json("res/train.json")
 val = pd.read_json("res/val.json")
 # test = pd.read_json("res/test.json")
@@ -13,19 +14,24 @@ val = pd.read_json("res/val.json")
 ### 2. modeling
 ### 2.1 hyperparameters: pow_alpha, pow_beta
 pow_alpha = 0.5
-pow_beta = 0.3
+pow_beta = 0.1
 
 ### 3. range setting - Neighbor.predict()
 ### 3.1 range(start, end); if end == None, then range(start, end of val)
 ### 3.2 auto_save: boolean; False(default)
 ### 3.3 return type of Neighbor.predict() : pandas.DataFrame
-pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, train=train, val=val).predict(start=0, end=None, auto_save=False)
+pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, \
+                train=train, val=val, song_meta=song_meta).predict(start=0, end=None, auto_save=False)
+# print(pred)
 
 ### 4. save data
+version = Neighbor.__version__
+version = version[version.find('-') + 1: version.find('.')]
 path = "."
-fname = f"neighbor_a{int(pow_alpha * 10)}b{int(pow_beta * 10)}"
+fname = f"neighbor{version}_a{int(pow_alpha * 10)}b{int(pow_beta * 10)}"
 pred.to_json(f'{path}/{fname}.json', orient='records')
 ```
+
 ### &#183; knn&#46;py
 ```python
 from knn import KNN
@@ -56,7 +62,9 @@ pred = KNN(k=k, rho=rho, alpha=alpha, beta=beta, \
 # print(pred)
 
 ### 4. save data
+version = KNN.__version__
+version = version[version.find('-') + 1: version.find('.')]
 path = "."
-fname = f"knn_k{k}rho{int(rho * 10)}a{int(alpha * 10)}b{int(beta * 10)}_{sim_songs}{sim_tags}{sim_normalize}"
+fname = f"knn{version}_k{k}rho{int(rho * 10)}a{int(alpha * 10)}b{int(beta * 10)}_{sim_songs}{sim_tags}{sim_normalize}"
 pred.to_json(f'{path}/{fname}.json', orient='records')
 ```
