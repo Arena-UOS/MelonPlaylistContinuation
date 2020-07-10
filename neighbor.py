@@ -1,16 +1,23 @@
 import numpy as np
 import pandas as pd
 import os
+from datetime import datetime
 from warnings import warn
 
 warn("Unsupported module 'tqdm' is used.")
 from tqdm import tqdm
 
 class Neighbor:
+    '''
+    Neighbor-based Collaborative Filtering
+    > Neighbor-2.0 Version Update
+      + date checking
+    '''
 
-    __version__ = "Neighbor-1.0"
+    __version__ = "Neighbor-2.0"
 
-    def __init__(self, pow_alpha, pow_beta, train=None, val=None, verbose=True, version_check=True):
+    def __init__(self, pow_alpha, pow_beta, train=None, val=None, song_meta=None, \
+                 verbose=True, version_check=True):
         '''
         pow_alpha, pow_beta : float (0<= pow_alpha, pow_beta <= 1)
         train, val : pandas.DataFrame
@@ -26,7 +33,11 @@ class Neighbor:
         self.val_id = val["id"]
         self.val_songs = val["songs"]
         self.val_tags = val["tags"]
+        self.val_updt_date = val["updt_date"]
         del val
+
+        self.song_meta_issue_date = song_meta["issue_date"]
+        del song_meta
 
         self.pow_alpha = pow_alpha
         self.pow_beta = pow_beta
@@ -50,7 +61,10 @@ class Neighbor:
         
         self.freq_songs_powered_beta = np.power(freq_songs, self.pow_beta)
         self.freq_songs_powered_another_beta = np.power(freq_songs, 1-self.pow_beta)
-        
+
+        for idx in self.val_id.index:
+            self.val_updt_date.at[idx] = int(''.join(self.val_updt_date[idx].split()[0].split('-')))
+        self.val_updt_date.astype(np.int64)
             
 
     def predict(self, start=0, end=None, auto_save=False, auto_save_step=500, auto_save_fname='auto_save'):
@@ -69,8 +83,8 @@ class Neighbor:
             _range = tqdm(range(start, self.val_id.index.stop)) if self.verbose else range(start, self.val_id.index.stop)
 
         pred = []
-        all_songs = [set(songs) for songs in self.train_songs] # list of set
-        all_tags =  [set(tags) for tags in self.train_tags]    # list of set
+        all_songs = [set(songs) for songs in self.train_songs]  # list of set
+        all_tags  = [set(tags)  for tags  in self.train_tags ]  # list of set
 
         # TODO: use variables instead of constants
         TOTAL_SONGS = 707989      # total number of songs
@@ -81,6 +95,7 @@ class Neighbor:
             
             playlist_songs = set(self.val_songs[uth])
             playlist_tags = set(self.val_tags[uth])
+            playlist_updt_date = self.val_updt_date[uth]  # type : np.int64
             playlist_size = len(playlist_songs)
 
             if len(playlist_songs) == 0:
@@ -124,9 +139,18 @@ class Neighbor:
 
                     relevance[track_i, 1] = (1 / playlist_size) * sum_of_sim
             
-            # select top 100
-            relevance = relevance[relevance[:, 1].argsort()][-100:][::-1]
-            pred_songs = relevance[:, 0].astype(np.int64).tolist()
+            # sort relevance
+            relevance = relevance[relevance[:, 1].argsort()][::-1]
+            sorted_songs = relevance[:, 0].astype(np.int64).tolist()
+
+            # check if issue_date of songs is earlier than updt_date of playlist
+            pred_songs = []
+            for track_i in sorted_songs:
+                if self.song_meta_issue_date[track_i] <= playlist_updt_date:
+                    pred_songs.append(track_i)
+                    if len(pred_songs) == 100:
+                        break
+
             pred.append({
                 "id" : int(self.val_id[uth]),
                 "songs" : pred_songs,
@@ -160,6 +184,7 @@ class Neighbor:
 if __name__=="__main__":
 
     ### 1. load data
+    song_meta = pd.read_json("res/song_meta.json")
     train = pd.read_json("res/train.json")
     val = pd.read_json("res/val.json")
     # test = pd.read_json("res/test.json")
@@ -167,16 +192,19 @@ if __name__=="__main__":
     ### 2. modeling
     ### 2.1 hyperparameters: pow_alpha, pow_beta
     pow_alpha = 0.5
-    pow_beta = 0.3
+    pow_beta = 0.1
 
     ### 3. range setting - Neighbor.predict()
     ### 3.1 range(start, end); if end == None, then range(start, end of val)
     ### 3.2 auto_save: boolean; False(default)
     ### 3.3 return type of Neighbor.predict() : pandas.DataFrame
-    pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, train=train, val=val).predict(start=0, end=None, auto_save=False)
+    pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, \
+                    train=train, val=val, song_meta=song_meta).predict(start=0, end=None, auto_save=False)
     # print(pred)
 
     ### 4. save data
+    version = Neighbor.__version__
+    version = version[version.find('-') + 1: version.find('.')]
     path = "."
-    fname = f"neighbor_a{int(pow_alpha * 10)}b{int(pow_beta * 10)}"
+    fname = f"neighbor{version}_a{int(pow_alpha * 10)}b{int(pow_beta * 10)}"
     pred.to_json(f'{path}/{fname}.json', orient='records')
