@@ -11,7 +11,7 @@ val = pd.read_json("res/val.json")
 # test = pd.read_json("res/test.json")
 
 ### 2. modeling
-### 2.1 hyperparameter: pow_alpha, pow_beta
+### 2.1 hyperparameters: pow_alpha, pow_beta
 pow_alpha = 0.5
 pow_beta = 0.3
 
@@ -36,8 +36,8 @@ val = pd.read_json("res/val.json")
 # test = pd.read_json("res/test.json")
 
 ### 2. modeling
-### 2.1 hyperparameter: k, rho, alpha, beta
-### 2.2 variables: sim_songs, sim_tags, sim_normalize
+### 2.1 hyperparameters: k, rho, alpha, beta
+### 2.2 parameters: sim_songs, sim_tags, sim_normalize
 k = 100
 rho = 0.4
 alpha = 0.5
