@@ -113,7 +113,7 @@ class KNN:
                 for vth in top:
                     _songs += self.train_songs[vth]
                     _tags += self.train_tags[vth]
-                songs = set(_songs) - playlist_tags
+                songs = set(_songs) - playlist_songs
 
                 counts = Counter(_tags).most_common(30)
                 tags = [tag for tag, _ in counts if tag not in playlist_tags]
