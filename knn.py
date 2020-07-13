@@ -103,7 +103,7 @@ class KNN:
             tags = []
 
             # TODO: add condition (len(tags) < 10)
-            while len(songs) < 100:
+            while (len(songs) < 100 or len(tags) < 10):
                 top = sim_score.argsort()[-k:] # top k indicies of playlists in train
 
                 _songs = []
