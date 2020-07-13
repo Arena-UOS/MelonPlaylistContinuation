@@ -40,6 +40,9 @@ class NeighborKNN:
         self.val_id    = val["id"].copy()
         self.val_songs = val["songs"].copy()
         self.val_tags  = val["tags"].copy()
+        self.val_updt_date = val["updt_date"].copy()
+
+        self.song_meta_issue_date = song_meta["issue_date"].copy()
 
         self.pred_songs = pred["songs"].copy()
         self.pred_tags  = pred["tags"].copy()
@@ -65,6 +68,12 @@ class NeighborKNN:
             print(f"NeighborKNN version: {NeighborKNN.__version__}")
 
         TOTAL_SONGS = song_meta.shape[0]  # total number of songs
+
+        ### transform date format in val
+        for idx in self.val_id.index:
+            self.val_updt_date.at[idx] = int(''.join(self.val_updt_date[idx].split()[0].split('-')))
+        self.val_updt_date.astype(np.int64)
+
 
         if self.sim_songs == "idf":
 
@@ -103,6 +112,7 @@ class NeighborKNN:
             if self.val_songs[uth] == [] and self.val_tags[uth] != []:
                 playlist_tags_in_pred = set(self.pred_tags[uth])
                 playlist_tags_in_val  = set(self.val_tags[uth])
+                playlist_updt_date = self.val_updt_date[uth]
                 simTags_in_pred = np.array([self._sim(playlist_tags_in_pred, vplaylist, self.sim_tags, opt='tags') for vplaylist in all_tags])
                 simTags_in_val  = np.array([self._sim(playlist_tags_in_val , vplaylist, self.sim_tags, opt='tags') for vplaylist in all_tags])
                 simTags = ((self.weight_pred_tags * simTags_in_pred) / (len(playlist_tags_in_pred))) + \
@@ -124,8 +134,16 @@ class NeighborKNN:
                     norm = 1.0e+10 # FIXME
             
                 relevance = np.array([(song, np.sum([simTags[vth] if song in all_songs[vth] else 0 for vth in top]) / norm) for song in songs])
-                relevance = relevance[relevance[:, 1].argsort()][-100:][::-1]
-                pred_songs = relevance[:, 0].astype(np.int64).tolist()
+                relevance = relevance[relevance[:, 1].argsort()][::-1]
+                sorted_songs = relevance[:, 0].astype(np.int64).tolist()
+                pred_songs = []
+
+                # check if issue_date of songs is earlier than updt_date of playlist
+                for track_i in sorted_songs:
+                    if self.song_meta_issue_date[track_i] <= playlist_updt_date:
+                        pred_songs.append(track_i)
+                        if len(pred_songs) == 100:
+                            break
 
                 pred.append({
                 "id" : int(self.val_id[uth]),
