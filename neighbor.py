@@ -267,8 +267,8 @@ if __name__=="__main__":
 
     ### 1.2 convert "tag" to "tag_id"
     tag_to_id, id_to_tag = tag_id_meta(train, val)
-    train = convert_tag_to_id(train, tag_to_id)
-    val   = convert_tag_to_id(val  , tag_to_id)
+    new_train = convert_tag_to_id(train, tag_to_id)
+    new_val   = convert_tag_to_id(val  , tag_to_id)
 
 
     ### 2. modeling : Neighbor
@@ -278,7 +278,7 @@ if __name__=="__main__":
 
     ### 2.2 run Neighbor.predict() : returns pandas.DataFrame
     pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, \
-                    train=train, val=val, song_meta=song_meta).predict(start=0, end=None, auto_save=True)
+                    train=new_train, val=new_val, song_meta=song_meta).predict(start=0, end=None, auto_save=True)
 
     ### 3. post-processing
     ### 3.1 convert "tag_id" to "tag"
