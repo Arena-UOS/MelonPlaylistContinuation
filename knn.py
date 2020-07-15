@@ -149,10 +149,11 @@ class KNN:
         opt : string; "songs", "tags"
         '''
 
+        norm = ((len(u) ** 0.5) * (len(v) ** 0.5))
         if sim == "cos":
             if self.sim_normalize:
                 try:
-                    len(u & v) / ((len(u) ** 0.5) * (len(v) ** 0.5))
+                    return len(u & v) / norm if norm != 0 else len(u & v)
                 except:
                     return 0
             else:
@@ -167,7 +168,7 @@ class KNN:
             freq = 1 / (((freq - 1) ** self.rho) + 1) # numpy!
             if self.sim_normalize:
                 try:
-                    return freq.sum() / ((len(u) ** 0.5) * (len(v) ** 0.5))
+                    return freq.sum() / norm if norm != 0 else freq.sum()
                 except:
                     return 0
             else:
@@ -203,7 +204,7 @@ if __name__=="__main__":
     beta = 0.5
     sim_songs = "idf"
     sim_tags = "cos"
-    sim_normalize = False
+    sim_normalize = True
 
     ### 3. range setting - KNN.predict()
     ### 3.1 range(start, end); if end == None, then range(start, end of val)
