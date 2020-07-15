@@ -127,6 +127,13 @@ class NeighborKNN:
                         _songs += self.train_songs[vth]
                     songs = set(_songs)
 
+                    # check if issue_date of songs is earlier than updt_date of playlist
+                    date_checked = []
+                    for track_i in songs:
+                        if self.song_meta_issue_date[track_i] <= playlist_updt_date:
+                            date_checked.append(track_i)
+                    songs = set(date_checked)
+
                     k += 100
                 
                 norm = simTags[top].sum()
@@ -134,16 +141,8 @@ class NeighborKNN:
                     norm = 1.0e+10 # FIXME
             
                 relevance = np.array([(song, np.sum([simTags[vth] if song in all_songs[vth] else 0 for vth in top]) / norm) for song in songs])
-                relevance = relevance[relevance[:, 1].argsort()][::-1]
-                sorted_songs = relevance[:, 0].astype(np.int64).tolist()
-                pred_songs = []
-
-                # check if issue_date of songs is earlier than updt_date of playlist
-                for track_i in sorted_songs:
-                    if self.song_meta_issue_date[track_i] <= playlist_updt_date:
-                        pred_songs.append(track_i)
-                        if len(pred_songs) == 100:
-                            break
+                relevance = relevance[relevance[:, 1].argsort()][-100:][::-1]
+                pred_songs = relevance[:, 0].astype(np.int64).tolist()
 
                 pred.append({
                 "id" : int(self.val_id[uth]),
