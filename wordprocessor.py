@@ -62,7 +62,13 @@ class WordProcessor:
 
         df.tag_token = token_tag
 
-        df.tag_token = df.tag_token.apply(lambda x: [e[0] for e in x])
+        def to_one_list(x):
+            try:
+                return [e[0] for e in x]
+            except:
+                return []
+
+        df.tag_token = df.tag_token.apply(to_one_list)
 
         using_pos = ['NNG', 'SL', 'NNP', 'MAG', 'SN', 'XR']
         df['tag_token_freq'] = df['tag_token'].map(lambda x: list(filter(lambda x: x[1] in using_pos, x)))
