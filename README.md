@@ -123,3 +123,33 @@ path = "."
 fname = f"knn{version}_k{k}rho{int(rho * 10)}a{int(alpha * 10)}b{int(beta * 10)}_{sim_songs}{sim_tags}{sim_normalize}"
 pred.to_json(f'{path}/{fname}.json', orient='records')
 ```
+### &#183; title_only&#46;py
++ requirements
+  + gensim
+  + train_token_full.json, val_token_full.json
+  + change DATA_PATH if needed
+```python
+import pandas as pd
+import numpy as np
+
+DATA_PATH = '.'
+
+processed_train = pd.read_json(DATA_PATH + 'train_token_full.json')
+target = pd.read_json(DATA_PATH + 'val_token_full.json')
+processed_target = target.loc[(np.array(list(map(len, target.songs))) == 0)
+                              & (np.array(list(map(len, target.tags))) == 0)]
+```
+
+```python
+from title_only import TitleOnly
+
+title_case = TitleOnly(processed_train, processed_target, verbose=True)
+title_case.fit()
+pred, log = title_case.run()
+```
+
+```python
+from arena_utils import write_json
+
+write_json(pred, 'title_only.json')
+```
