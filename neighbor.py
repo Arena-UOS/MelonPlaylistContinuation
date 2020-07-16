@@ -55,9 +55,9 @@ class Neighbor:
 
         _, id_to_tag = tag_id_meta(train, val)
 
-        TOTAL_SONGS = song_meta.shape[0]     # total number of songs
-        TOTAL_TAGS  = len(id_to_tag.keys())  # total number of tags
-        TOTAL_PLAYLISTS = train.shape[0]     # total number of playlists
+        TOTAL_SONGS = song_meta.shape[0]  # total number of songs
+        TOTAL_TAGS  = len(id_to_tag)      # total number of tags
+        TOTAL_PLAYLISTS = train.shape[0]  # total number of playlists
 
         ### 2. data preprocessing
         ### 2.1 transform date format in val
