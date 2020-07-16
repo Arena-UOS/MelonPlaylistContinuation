@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 from collections import Counter
+from data_util import tag_id_meta
 from warnings import warn
 
 warn("Unsupported module 'tqdm' is used.")
@@ -66,8 +67,11 @@ class NeighborKNN:
 
         if version_check:
             print(f"NeighborKNN version: {NeighborKNN.__version__}")
+        
+        _, id_to_tag = tag_id_meta(train, val)
 
-        TOTAL_SONGS = song_meta.shape[0]  # total number of songs
+        TOTAL_SONGS = song_meta.shape[0]     # total number of songs
+        TOTAL_TAGS  = len(id_to_tag)  # total number of tags
 
         ### transform date format in val
         for idx in self.val_id.index:
@@ -78,9 +82,14 @@ class NeighborKNN:
         if self.sim_songs == "idf":
 
             self.freq_songs = np.zeros(TOTAL_SONGS, dtype=np.int64)
-            _playlist = self.train_songs
-            for _songs in _playlist:
+            for _songs in self.train_songs:
                 self.freq_songs[_songs] += 1
+
+        if self.sim_tags == "idf":
+
+            self.freq_tags = np.zeros(TOTAL_TAGS, dtype=np.int64)
+            for _tags in self.train_tags:
+                self.freq_tags[_tags] += 1
 
         del train, val, song_meta, pred
 
