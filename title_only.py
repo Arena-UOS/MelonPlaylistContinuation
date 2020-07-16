@@ -15,11 +15,13 @@ class TitleOnly:
         self.threshold = threshold
         self.verbose = verbose
 
+
     def _make_sentence(self, df):
 
         ttl = df.ttl_token_freq.apply(lambda x: [e[0] for e in x])
         tag = df.ttl_token_freq.apply(lambda x: [e[0] for e in x])
         return ttl + tag
+
 
     def _to_one_string(self, lst):
 
@@ -30,6 +32,7 @@ class TitleOnly:
             else:
                 tmp += word + ' '
         return tmp
+
 
     def _get_set(self, series):
 
@@ -42,6 +45,7 @@ class TitleOnly:
                     song_set[songs] = 1
 
         return song_set
+
 
     def fit(self):
 
@@ -78,6 +82,7 @@ class TitleOnly:
         # train FastText
         if self.verbose: print("Training FastText...")
         self.model = FastText(self.train_words, window=2)
+
 
     def predict(self, idx):
 
@@ -122,6 +127,7 @@ class TitleOnly:
             print("ID {} has Tags less than 10".format(ids))
 
         return ids, pred_songs, pred_tags, err
+
 
     def run(self, debug=None):
 

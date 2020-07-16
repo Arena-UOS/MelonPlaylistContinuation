@@ -18,6 +18,7 @@ class WordProcessor:
         series = series.str.replace(pat=r'[\u3000]+', repl=r'', regex=True)  # u3000 제거
         return series
 
+
     def get_token(self, title, tokenizer):
         if len(title) == 0 or title == ' ':  # 제목이 공백인 경우 tokenizer에러 발생
             return []
@@ -51,6 +52,7 @@ class WordProcessor:
 
         return df
 
+
     def make_tag_tokens(self, df):
         tokenizer = KhaiiiApi()
 
@@ -67,10 +69,12 @@ class WordProcessor:
 
         return df
 
+
     def tokenize(self, df):
         tmp = self.make_title_tokens(df)
         tmp2 = self.make_tag_tokens(tmp)
         return tmp2
+
 
     def save(self, df):
         tokenized = self.tokenize(df)
