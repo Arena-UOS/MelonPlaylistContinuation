@@ -8,11 +8,13 @@ from gensim.models import FastText
 
 class TitleOnly:
 
-    def __init__(self, processed_train, processed_target, threshold=2, verbose=False):
+    def __init__(self, processed_train, processed_target,
+                 threshold=2, embrace=30, verbose=False):
 
         self.train = processed_train
         self.target = processed_target
         self.threshold = threshold
+        self.embrace = embrace
         self.verbose = verbose
 
 
@@ -113,10 +115,10 @@ class TitleOnly:
         # Tag Part
         k = 20
         tag_set = dict()
-        while len(tag_set) < 30:
+        while len(tag_set) < self.embrace:
             mask = [r[0] for r in result[::-1][:k]]
             tag_set = self._get_set(self.train.loc[mask, 'tags'])
-            if len(tag_set) < 30:
+            if len(tag_set) < self.embrace:
                 k += 20
 
         tag_similarity = [(t, self.model.wv.similarity(self.target_str[idx], t)) for t in tag_set.keys()]
@@ -184,5 +186,7 @@ if __name__ == "__main__":
     # Predict
     title_case = TitleOnly(processed_train, processed_target, verbose=True)
     title_case.fit()
-    pred, log = title_case.run(debug=[10, 13])
-    print(pred, log)
+    pred, log = title_case.run()
+
+    from arena_utils import write_json
+    write_json(pred, 'title_only.json')
