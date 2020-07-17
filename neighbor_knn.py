@@ -19,7 +19,8 @@ class NeighborKNN:
 
     __version__ = "NeighborKNN-1.0"
     
-    def __init__(self, k=100, rho=0.4, \
+    def __init__(self, song_k, tag_k, rho=0.4, \
+                 song_k_step=50, tag_k_step=10, \
                  weight_val_songs=0.5, weight_pred_songs=0.5, \
                  weight_val_tags=0.5, weight_pred_tags=0.5, \
                  sim_songs="idf", sim_tags="cos", sim_normalize=False, \
@@ -51,7 +52,10 @@ class NeighborKNN:
         self.freq_songs = None
         self.freq_tags  = None
         
-        self.k   = k
+        self.song_k = song_k
+        self.tag_k  = tag_k
+        self.song_k_step = song_k_step
+        self.tag_k_step  = tag_k_step
         self.rho = rho
         self.weight_val_songs  = weight_val_songs
         self.weight_pred_songs = weight_pred_songs
@@ -115,7 +119,8 @@ class NeighborKNN:
 
         for uth in _range:
 
-            k = self.k
+            song_k = self.song_k
+            tag_k  = self.tag_k
 
             # predict songs by tags
             if self.val_songs[uth] == [] and self.val_tags[uth] != []:
@@ -129,7 +134,7 @@ class NeighborKNN:
                 songs = set()
 
                 while len(songs) < 100:
-                    top = simTags.argsort()[-k:]
+                    top = simTags.argsort()[-song_k:]
                     _songs = []
 
                     for vth in top:
@@ -143,7 +148,7 @@ class NeighborKNN:
                             date_checked.append(track_i)
                     songs = set(date_checked)
 
-                    k += 100
+                    song_k += self.song_k_step
                 
                 norm = simTags[top].sum()
                 if norm == 0:
@@ -170,7 +175,7 @@ class NeighborKNN:
                 tags = []
                 
                 while len(tags) < 10:
-                    top = simSongs.argsort()[-k:]
+                    top = simSongs.argsort()[-tag_k:]
                     _tags = []
                     
                     for vth in top:
@@ -179,7 +184,7 @@ class NeighborKNN:
                     counts = Counter(_tags).most_common(30)
                     tags = [tag for tag, _ in counts]
 
-                    k += 100
+                    tag_k += self.tag_k_step
                 
                 pred_tags = tags[:10]
 
@@ -215,7 +220,7 @@ class NeighborKNN:
         if sim == "cos":
             if self.sim_normalize:
                 try:
-                    len(u & v) / ((len(u) ** 0.5) * (len(v) ** 0.5))
+                    return len(u & v) / ((len(u) ** 0.5) * (len(v) ** 0.5))
                 except:
                     return 0
             else:
@@ -252,25 +257,37 @@ class NeighborKNN:
 
 if __name__=="__main__":
 
+    from data_util import *
+
+    train = pd.read_json("res/train.json")
+    val   = pd.read_json("res/val.json")
+
+    tag_to_id, id_to_tag = tag_id_meta(train, val)
+
     ### 4. modeling : NeighborKNN
     ### 4.1 hyperparameters: k, rho, weights
     ### 4.2 parameters: sim_songs, sim_tags, sim_normalize
-    k = 100
+    song_k = 100
+    tag_k  = 10
+    song_k_step = 50
+    tag_k_step  = 10
     rho = 0.4
-    weight_val_songs  = 0.5
+    weight_val_songs  = 0.9
     weight_pred_songs = 1 - weight_val_songs
-    weight_val_tags   = 0.5
+    weight_val_tags   = 0.7
     weight_pred_tags  = 1 - weight_val_tags
     sim_songs = "idf"
     sim_tags = "cos"
     sim_normalize = False
 
     ### 4.3 run NeighborKNN.predict() : returns pandas.DataFrame
-    pred = NeighborKNN(k=k, rho=rho, \
-                weight_val_songs=weight_val_songs, weight_pred_songs=weight_pred_songs, \
-                weight_val_tags=weight_val_tags, weight_pred_tags=weight_pred_tags, \
-                sim_songs=sim_songs, sim_tags=sim_tags, sim_normalize=sim_normalize, \
-                train=train, val=val, song_meta=song_meta, pred=pred).predict(start=0, end=None, auto_save=True)
+    pred = NeighborKNN(song_k=song_k, tag_k=tag_k, rho=rho, \
+                       song_k_step=song_k_step, tag_k_step=tag_k_step, \
+                       weight_val_songs=weight_val_songs, weight_pred_songs=weight_pred_songs, \
+                       weight_val_tags=weight_val_tags, weight_pred_tags=weight_pred_tags, \
+                       sim_songs=sim_songs, sim_tags=sim_tags, sim_normalize=sim_normalize, \
+                       train=train, val=val, song_meta=song_meta, pred=pred).predict(start=0, end=None, auto_save=True)
+    pred = convert_id_to_tag(pred, id_to_tag)
     # print(pred)
 
     ### ==============================(save data)==============================
