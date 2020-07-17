@@ -1,4 +1,4 @@
-import json, re
+import time, os
 
 import pandas as pd
 import numpy as np
@@ -9,13 +9,17 @@ from gensim.models import FastText
 class TitleOnly:
 
     def __init__(self, processed_train, processed_target,
-                 threshold=2, embrace=30, verbose=False):
+                 threshold=2, embrace=30, verbose=False, load=None):
 
         self.train = processed_train
         self.target = processed_target
         self.threshold = threshold
         self.embrace = embrace
         self.verbose = verbose
+
+        self.load = load
+        if self.load:
+            self.model = FastText.load(self.load)
 
 
     def _make_sentence(self, df):
@@ -83,7 +87,8 @@ class TitleOnly:
 
         # train FastText
         if self.verbose: print("Training FastText...")
-        self.model = FastText(self.train_words, window=2)
+        if not self.load:
+            self.model = FastText(self.train_words, window=2)
 
 
     def predict(self, idx):
@@ -153,6 +158,14 @@ class TitleOnly:
 
         return pred, log
 
+    def save_model(self):
+        if not os.path.isdir('./models'):
+            os.mkdir('./models')
+
+        tm = time.localtime(time.time())
+        fname = time.strftime('%Y-%m-%d_%I-%M-%S-%p', tm)
+        os.mkdir('./models/' + fname)
+        self.model.save('./models/' + fname + '/' + fname + '.model')
 
 
 if __name__ == "__main__":
@@ -187,6 +200,7 @@ if __name__ == "__main__":
     title_case = TitleOnly(processed_train, processed_target, verbose=True)
     title_case.fit()
     pred, log = title_case.run()
+    title_case.save_model()
 
-    from arena_utils import write_json
+    from arena_util import write_json
     write_json(pred, 'title_only.json')
