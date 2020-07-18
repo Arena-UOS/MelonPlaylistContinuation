@@ -294,6 +294,6 @@ if __name__=="__main__":
     version = NeighborKNN.__version__
     version = version[version.find('-') + 1: version.find('.')]
     path = "."
-    fname2 = f"neighbor-knn{version}_k{son_k}-{tag_k}step{song_k_step}-{tag_k_step}rho{int(rho * 10)}s{int(weight_val_songs * 10)}t{int(weight_val_tags * 10)}_{sim_songs}{sim_tags}{sim_normalize}"
+    fname2 = f"neighbor-knn{version}_k{song_k}-{tag_k}step{song_k_step}-{tag_k_step}rho{int(rho * 10)}s{int(weight_val_songs * 10)}t{int(weight_val_tags * 10)}_{sim_songs}{sim_tags}{sim_normalize}"
     pred.to_json(f'{path}/{fname2}.json', orient='records')
     ### ======================================================================
