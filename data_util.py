@@ -2,14 +2,13 @@ import numpy as np
 import pandas as pd
 
 
-def tag_id_meta(train, val):
+def tag_id_meta(data):
     '''
-    train, val : pandas.DataFrame
+    train, val : list of pandas.DataFrame
     @returns : (dictionary, dictionary)
     '''
     tag_to_id = {}
     id_to_tag = {}
-    data = [train, val]
 
     tag_id = 0
     for df in data:
