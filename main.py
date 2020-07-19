@@ -62,6 +62,8 @@ pred = NeighborKNN(k=k, rho=rho, \
 ### 4. post-processing
 ### 4.1 convert "tag_id" to "tag"
 pred = convert_id_to_tag(pred, id_to_tag)
+pred = to_list(pred)
+write_json(pred, "results.json") # path???
 # print(pred)
 
 ### ==============================(save data)==============================
