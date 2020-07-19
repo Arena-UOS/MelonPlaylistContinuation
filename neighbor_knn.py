@@ -134,7 +134,7 @@ class NeighborKNN:
                 songs = set()
 
                 while len(songs) < 100:
-                    top = simTags.argsort()[-song_k:]
+                    top = simTags.argsort()[-tag_k:]
                     _songs = []
 
                     for vth in top:
@@ -148,7 +148,7 @@ class NeighborKNN:
                             date_checked.append(track_i)
                     songs = set(date_checked)
 
-                    song_k += self.song_k_step
+                    tag_k += self.tag_k_step
                 
                 norm = simTags[top].sum()
                 if norm == 0:
@@ -175,7 +175,7 @@ class NeighborKNN:
                 tags = []
                 
                 while len(tags) < 10:
-                    top = simSongs.argsort()[-tag_k:]
+                    top = simSongs.argsort()[-song_k:]
                     _tags = []
                     
                     for vth in top:
@@ -184,7 +184,7 @@ class NeighborKNN:
                     counts = Counter(_tags).most_common(30)
                     tags = [tag for tag, _ in counts]
 
-                    tag_k += self.tag_k_step
+                    song_k += self.song_k_step
                 
                 pred_tags = tags[:10]
 
