@@ -7,10 +7,13 @@ from arena_util import load_json, write_json
 
 ### 1. data & preprocessing
 ### 1.1 load data
-song_meta = pd.read_json("res/song_meta.json")
-train = pd.read_json("res/train.json")
-val = pd.read_json("res/val.json")
-# test = pd.read_json("res/test.json")
+song_meta = load_json("res/song_meta.json")
+train     = load_json("res/train.json")
+val       = load_json("res/val.json")
+
+song_meta = pd.DataFrame(song_meta)
+train     = pd.DataFrame(train)
+val       = pd.DataFrame(val)
 
 ### 1.2 convert "tag" to "tag_id"
 tag_to_id, id_to_tag = tag_id_meta(train, val)
