@@ -44,7 +44,7 @@ class NeighborKNN:
         self.val_tags  = val["tags"].copy()
         self.val_updt_date = val["updt_date"].copy()
 
-        self.song_meta_issue_date = song_meta["issue_date"].copy()
+        self.song_meta_issue_date = song_meta["issue_date"].copy().astype(np.int64)
 
         self.pred_songs = pred["songs"].copy()
         self.pred_tags  = pred["tags"].copy()

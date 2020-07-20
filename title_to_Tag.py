@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
-#from khaiii import KhaiiiApi
+from khaiii import KhaiiiApi
 import json, re
 from collections import Counter
 from typing import *
@@ -60,7 +60,8 @@ class Title_to_tag:
                 val.append({
                     "id": int(self.val_id[uth]),
                     "songs": self.val_songs[uth],
-                    "tags": self.val_tags[uth]
+                    "tags": self.val_tags[uth],
+                    "updt_date": self.val_updt_date[uth]
                 })
                 continue
 
@@ -90,9 +91,9 @@ class Title_to_tag:
             val.append({
                 "id": int(self.val_id[uth]),
                 "songs": [],
-                "tags": born_tag
+                "tags": born_tag,
+                "updt_date": self.val_updt_date[uth]
             })
-            val["updt_date"] = self.val_updt_date
         return pd.DataFrame(val)
 
 if __name__ == "__main__":
