@@ -3,6 +3,7 @@
 
 ### Projects ###
 res/
+arena_data
 
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
