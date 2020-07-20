@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from neighbor import Neighbor
 from neighbor_knn import NeighborKNN
+from title_to_Tag import Title_to_tag
 from data_util import *
 from arena_util import load_json, write_json
 
@@ -11,8 +12,10 @@ song_meta = pd.read_json("res/song_meta.json")
 train = pd.read_json("res/train.json")
 val = pd.read_json("res/val.json")
 # test = pd.read_json("res/test.json")
+### 1.2 only_title chage to tags
+val = Title_to_tag(train=train, val=val).change()
 
-### 1.2 convert "tag" to "tag_id"
+### 1.3 convert "tag" to "tag_id"
 tag_to_id, id_to_tag = tag_id_meta(train, val)
 train = convert_tag_to_id(train, tag_to_id)
 val   = convert_tag_to_id(val  , tag_to_id)
