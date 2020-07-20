@@ -268,9 +268,9 @@ if __name__=="__main__":
     ### 4.1 hyperparameters: k, rho, weights
     ### 4.2 parameters: sim_songs, sim_tags, sim_normalize
     song_k = 100
-    tag_k  = 10
-    song_k_step = 50
-    tag_k_step  = 10
+    tag_k  = 100
+    song_k_step = 100
+    tag_k_step  = 100
     rho = 0.4
     weight_val_songs  = 0.9
     weight_pred_songs = 1 - weight_val_songs
