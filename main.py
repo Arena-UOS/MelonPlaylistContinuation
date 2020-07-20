@@ -26,6 +26,7 @@ parser.add_argument('--weight_val_tags', '-wvt', type=float, default=0.7, help='
 parser.add_argument('--sim_songs', '-sims', type=str, default='idf', help='methods to calculate similarity of songs')
 parser.add_argument('--sim_tags', '-simt', type=str, default='idf', help='methods to calculate similarity of tags')
 parser.add_argument('--sim_normalize', '-simn', type=bool, default=False, help='to normalizae simlarity or not')
+parser.add_argument('--fname', '-f', type=str, default='results.json', help='file name')
 args = parser.parse_args()
 
 ### 1. data & preprocessing
@@ -62,7 +63,7 @@ pow_beta = args.beta
 
 ### 2.2 run Neighbor.predict() : returns pandas.DataFrame
 pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, \
-                train=train, val=val, song_meta=song_meta).predict(start=0, end=None, auto_save=True)
+                train=train, val=val, song_meta=song_meta).predict(start=0, end=23015, auto_save=True)
 # print(pred)
 
 ### ==============================(save data)==============================
@@ -95,13 +96,13 @@ pred = NeighborKNN(song_k=song_k, tag_k=tag_k, rho=rho, \
                    weight_val_songs=weight_val_songs, weight_pred_songs=weight_pred_songs, \
                    weight_val_tags=weight_val_tags, weight_pred_tags=weight_pred_tags, \
                    sim_songs=sim_songs, sim_tags=sim_tags, sim_normalize=sim_normalize, \
-                   train=train, val=val, song_meta=song_meta, pred=pred).predict(start=0, end=5, auto_save=True)
+                   train=train, val=val, song_meta=song_meta, pred=pred).predict(start=0, end=23015, auto_save=True)
 
 ### 4. post-processing
 ### 4.1 convert "tag_id" to "tag"
 pred = convert_id_to_tag(pred, id_to_tag)
 pred = generate_answers(load_json(train_path), to_list(pred))
-write_json(pred, "results.json") # path???
+write_json(pred, args.fname) # path???
 #print(pred)
 
 ### ==============================(save data)==============================
