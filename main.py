@@ -61,7 +61,7 @@ pow_beta = args.beta
 
 ### 2.2 run Neighbor.predict() : returns pandas.DataFrame
 pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, \
-                train=train, val=val, song_meta=song_meta).predict(start=0, end=10, auto_save=True)
+                train=train, val=val, song_meta=song_meta).predict(start=0, end=5, auto_save=True)
 # print(pred)
 
 ### ==============================(save data)==============================
@@ -94,15 +94,14 @@ pred = NeighborKNN(song_k=song_k, tag_k=tag_k, rho=rho, \
                    weight_val_songs=weight_val_songs, weight_pred_songs=weight_pred_songs, \
                    weight_val_tags=weight_val_tags, weight_pred_tags=weight_pred_tags, \
                    sim_songs=sim_songs, sim_tags=sim_tags, sim_normalize=sim_normalize, \
-                   train=train, val=val, song_meta=song_meta, pred=pred).predict(start=0, end=10, auto_save=True)
+                   train=train, val=val, song_meta=song_meta, pred=pred).predict(start=0, end=5, auto_save=True)
 
 ### 4. post-processing
 ### 4.1 convert "tag_id" to "tag"
 pred = convert_id_to_tag(pred, id_to_tag)
-pred = to_list(pred)
-pred = _generate_answers(pred)
+pred = generate_answers(load_json(train_path), to_list(pred))
 write_json(pred, "results.json") # path???
-# print(pred)
+print(pred)
 
 ### ==============================(save data)==============================
 # version = NeighborKNN.__version__
