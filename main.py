@@ -9,7 +9,7 @@ from arena_util import load_json, write_json
 import argparse
 
 parser = argparse.ArgumentParser(description='User kNN')
-parser.add_argument('--khaiii', '-k', type=bool, default=True, help='khaiii availability')
+parser.add_argument('--khaiii', '-k', action='store_true', help='khaiii availability')
 parser.add_argument('--train_path', '-t', type=str, default='res/train.json', help='path of train.json')
 parser.add_argument('--val_path', '-v', type=str, default='res/val.json', help='path of val.json')
 parser.add_argument('--song_path', '-s', type=str, default='res/song_meta.json', help='path of song_meta.json')
@@ -47,7 +47,8 @@ if args.khaiii:
     val = Title_to_tag(train1=train_path, val1=val_path).change()
 
 else:
-    val = load_json(args.val_conv_path)
+    val = pd.DataFrame(load_json(args.val_conv_path))
+
 ### 1.3 convert "tag" to "tag_id"
 tag_to_id, id_to_tag = tag_id_meta(train, val)
 train = convert_tag_to_id(train, tag_to_id)
@@ -61,7 +62,7 @@ pow_beta = args.beta
 
 ### 2.2 run Neighbor.predict() : returns pandas.DataFrame
 pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, \
-                train=train, val=val, song_meta=song_meta).predict(start=0, end=5, auto_save=True)
+                train=train, val=val, song_meta=song_meta).predict(start=0, end=None, auto_save=True)
 # print(pred)
 
 ### ==============================(save data)==============================
@@ -101,7 +102,7 @@ pred = NeighborKNN(song_k=song_k, tag_k=tag_k, rho=rho, \
 pred = convert_id_to_tag(pred, id_to_tag)
 pred = generate_answers(load_json(train_path), to_list(pred))
 write_json(pred, "results.json") # path???
-print(pred)
+#print(pred)
 
 ### ==============================(save data)==============================
 # version = NeighborKNN.__version__
