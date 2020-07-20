@@ -47,6 +47,17 @@ def convert_id_to_tag(data, id_to_tag):
         data.at[idx, "tags"] = new_tags
     return data
 
+def to_list(df):
+
+    lst = []
+    for idx in df.index:
+        dct = {}
+        dct["id"]    = df["id"][idx]
+        dct["songs"] = df["songs"][idx]
+        dct["tags"]  = df["tags"][idx]
+        lst.append(dct)
+    return lst
+
 
 
 if __name__=="__main__":

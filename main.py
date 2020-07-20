@@ -2,19 +2,21 @@ import numpy as np
 import pandas as pd
 from neighbor import Neighbor
 from neighbor_knn import NeighborKNN
-from title_to_Tag import Title_to_tag
 from data_util import *
 from arena_util import load_json, write_json
 
 ### 1. data & preprocessing
 ### 1.1 load data
-song_meta = pd.read_json("res/song_meta.json")
-train = pd.read_json("res/train.json")
-val = pd.read_json("res/val.json")
-# test = pd.read_json("res/test.json")
+song_meta = load_json("res/song_meta.json")
+train     = load_json("res/train.json")
+val       = load_json("res/val.json")
+
+song_meta = pd.DataFrame(song_meta)
+train     = pd.DataFrame(train)
+val       = pd.DataFrame(val)
+
 ### 1.2 only_title chage to tags
 val = Title_to_tag(train=train, val=val).change()
-
 ### 1.3 convert "tag" to "tag_id"
 tag_to_id, id_to_tag = tag_id_meta(train, val)
 train = convert_tag_to_id(train, tag_to_id)
@@ -62,6 +64,8 @@ pred = NeighborKNN(k=k, rho=rho, \
 ### 4. post-processing
 ### 4.1 convert "tag_id" to "tag"
 pred = convert_id_to_tag(pred, id_to_tag)
+pred = to_list(pred)
+write_json(pred, "results.json") # path???
 # print(pred)
 
 ### ==============================(save data)==============================
@@ -74,4 +78,5 @@ pred.to_json(f'{path}/{fname2}.json', orient='records')
 
 ### 5. save data
 path = "."
+>>>>>>> a31529753aeed2b742ae5d4404fa53d070bc3011
 pred.to_json(f'{path}/{fname1}-{fname2}.json', orient='records')
