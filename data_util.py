@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from arena_util import most_popular, remove_seen
 
 
 def tag_id_meta(train,val):
@@ -58,6 +59,28 @@ def to_list(df):
         lst.append(dct)
     return lst
 
+def _generate_answers(self, train, questions):
+    _, song_mp = most_popular(train, "songs", 200)
+    _, tag_mp = most_popular(train, "tags", 100)
+
+    answers = []
+
+    for q in questions:
+        if q["songs"] !=0 and q["tags"] !=0 :
+            answers.append({
+            "id": q["id"],
+            "songs": q["songs"],
+            "tags": q["tags"]
+        })
+        else :
+            answers.append({
+            "id": q["id"],
+            "songs": remove_seen(q["songs"], song_mp)[:100],
+            "tags": remove_seen(q["tags"], tag_mp)[:10]
+        })
+
+
+    return answers
 
 
 if __name__=="__main__":
