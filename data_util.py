@@ -59,14 +59,14 @@ def to_list(df):
         lst.append(dct)
     return lst
 
-def _generate_answers(self, train, questions):
+def generate_answers(train, questions):
     _, song_mp = most_popular(train, "songs", 200)
     _, tag_mp = most_popular(train, "tags", 100)
 
     answers = []
 
     for q in questions:
-        if q["songs"] !=0 and q["tags"] !=0 :
+        if len(q["songs"]) !=0 and len(q["tags"]) !=0 :
             answers.append({
             "id": q["id"],
             "songs": q["songs"],
