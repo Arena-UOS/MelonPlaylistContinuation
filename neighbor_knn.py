@@ -133,7 +133,7 @@ class NeighborKNN:
                           ((self.weight_val_tags * simTags_in_val) / (len(playlist_tags_in_val)))
                 songs = set()
 
-                song_k = len(simTags[simTags > 0])
+                song_k = max(len(simTags[simTags > 0]), self.song_k)
                 while len(songs) < 100:
                     top = simTags.argsort()[-song_k:]
                     _songs = []
@@ -175,7 +175,7 @@ class NeighborKNN:
                            ((self.weight_val_songs * simSongs_in_val)  /  (len(playlist_songs_in_val)))
                 tags = []
 
-                tag_k = len(simSongs[simSongs > 0])
+                tag_k = max(len(simSongs[simSongs > 0]), self.tag_k)
                 while len(tags) < 10:
                     top = simSongs.argsort()[-tag_k:]
                     _tags = []
