@@ -51,9 +51,33 @@ class Title_to_tag:
         data_lower = [[j.lower() for j in i] for i in data_list]
         return data_lower
 
+    def make_tag(self, val_title):
+      candidate_tag = val_title.split()
+      original_tag = []
+      new_tag = []
+      for i in candidate_tag:
+        if i in self.train_tags_set:
+          original_tag.append(i)
+        else:
+          new_tag.append(i)
+      del candidate_tag
+
+      tokenizer = KhaiiiApi()
+      token_tag = [self.get_token(x, tokenizer) for x in new_tag]
+      origin_khai_tag = self.flatten(token_tag)
+      origin_khai_tag = [origin_khai_tag[i] for i in range(len(origin_khai_tag)) if
+                         origin_khai_tag[i][0] in self.train_tags_set]
+      using_pos = ['NNG', 'SL', 'NNP', 'MAG', 'SN', 'XR']  # 일반 명사, 외국어, 고유 명사, 일반 부사, 숫자, 형용사??(잔잔)
+      origin_khai_tag = [origin_khai_tag[i][0] for i in range(len(origin_khai_tag)) if
+                         origin_khai_tag[i][1] in using_pos]
+
+      born_tag = list(set(origin_khai_tag + original_tag))
+
+      return born_tag
+
     def change(self ):
         val = []
-        train_tags_set = set(self.flatten(self.train_tags))
+        self.train_tags_set = set(self.flatten(self.train_tags))
         for uth in range(0, len(self.val_id)):
 
             if len(self.val_tags[uth]) != 0 or len(self.val_songs[uth]) != 0:
@@ -66,27 +90,16 @@ class Title_to_tag:
                 continue
 
             val_title = self.val_title[uth]
-            candidate_tag = val_title.split()
+            born_tag = self.make_tag(val_title)
 
-            original_tag = []
-            new_tag = []
-            for i in candidate_tag:
-                if i in train_tags_set:
-                    original_tag.append(i)
-                else:
-                    new_tag.append(i)
-            del candidate_tag
+            if len(born_tag) == 0:
+              born_tag = self.make_tag(val_title.lower())
 
-            tokenizer = KhaiiiApi()
-            token_tag = [self.get_token(x, tokenizer) for x in new_tag]
-            origin_khai_tag = self.flatten(token_tag)
-            origin_khai_tag = [origin_khai_tag[i] for i in range(len(origin_khai_tag)) if
-                               origin_khai_tag[i][0] in train_tags_set]
-            using_pos = ['NNG', 'SL', 'NNP', 'MAG', 'SN', 'XR']  # 일반 명사, 외국어, 고유 명사, 일반 부사, 숫자, 형용사??(잔잔)
-            origin_khai_tag = [origin_khai_tag[i][0] for i in range(len(origin_khai_tag)) if
-                               origin_khai_tag[i][1] in using_pos]
 
-            born_tag = list(set(origin_khai_tag + original_tag))
+            if len(born_tag) == 0:
+              for i in range(len(val_title)-4):
+                if val_title[i:i+5] == "크리스마스":
+                  born_tag = [val_title[i:i+5]]
 
             val.append({
                 "id": int(self.val_id[uth]),
