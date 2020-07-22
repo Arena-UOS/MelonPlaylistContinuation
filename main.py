@@ -62,15 +62,12 @@ val   = convert_tag_to_id(val  , tag_to_id)
 
 ### 2. modeling : Neighbor
 ### 2.1 hyperparameters: pow_alpha, pow_beta
-if args.prejson:
+try:
+    pred = pd.DataFrame(load_json(args.prejson))
     print("Use pretrained neighbor .json...")
-    try:
-        pred = pd.DataFrame(load_json(args.prejson))
-    except:
-        print("You don't have pretrained file!")
 
-else:
-    print("No pretrained. Run Neighbor...")
+except:
+    print("No Pretrained .json, run Neighbor...")
     pow_alpha = args.alpha
     pow_beta = args.beta
 
