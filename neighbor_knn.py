@@ -107,6 +107,8 @@ class NeighborKNN:
         @returns : pandas.DataFrame; columns=['id', 'songs', 'tags']
         '''
 
+        err = []
+
         # TODO: Remove unsupported module 'tqdm'.
         if end:
             _range = tqdm(range(start, end)) if self.verbose else range(start, end)
@@ -118,6 +120,8 @@ class NeighborKNN:
         all_tags =  [set(tags) for tags in self.train_tags]    # list of set
 
         for uth in _range:
+
+            print(err)
 
             # song_k = self.song_k
             # tag_k  = self.tag_k
@@ -133,7 +137,13 @@ class NeighborKNN:
                           ((self.weight_val_tags * simTags_in_val) / (len(playlist_tags_in_val)))
                 songs = set()
 
-                song_k = min(len(simTags[simTags > 0]), self.song_k)
+                try:
+                    song_k = min(len(simTags[simTags > 0]), self.song_k)
+
+                except:
+                    song_k = self.song_k
+                    err.append((uth, 'song_k'))
+
                 while len(songs) < 100:
                     top = simTags.argsort()[-song_k:]
                     _songs = []
@@ -175,7 +185,13 @@ class NeighborKNN:
                            ((self.weight_val_songs * simSongs_in_val)  /  (len(playlist_songs_in_val)))
                 tags = []
 
-                tag_k = min(len(simSongs[simSongs > 0]), self.tag_k)
+                try:
+                    tag_k = min(len(simSongs[simSongs > 0]), self.tag_k)
+
+                except:
+                    tag_k = self.tag_k
+                    err.append((uth, 'tag_k'))
+
                 while len(tags) < 10:
                     top = simSongs.argsort()[-tag_k:]
                     _tags = []
@@ -208,7 +224,7 @@ class NeighborKNN:
             if (auto_save == True) and ((uth + 1) % auto_save_step == 0):
                 self._auto_save(pred, auto_save_fname)
         
-        return pd.DataFrame(pred)
+        return pd.DataFrame(pred), err
     
 
     def _sim(self, u, v, sim, opt):

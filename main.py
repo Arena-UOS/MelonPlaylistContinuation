@@ -12,7 +12,7 @@ parser.add_argument('--khaiii', '-k', action='store_true', help='khaiii availabi
 parser.add_argument('--train_path', '-t', type=str, default='res/train.json', help='path of train.json')
 parser.add_argument('--val_path', '-v', type=str, default='res/val.json', help='path of val.json')
 parser.add_argument('--song_path', '-s', type=str, default='res/song_meta.json', help='path of song_meta.json')
-parser.add_argument('--val_conv_path', '-vcp', type=str, default='res/val_title2.json', help='if khaiii doesnt work-windows')
+parser.add_argument('--val_conv_path', '-vcp', type=str, default='res/val_title.json', help='if khaiii doesnt work-windows')
 parser.add_argument('--prejson', '-pj', type=str, default='res/neighbor3_a7b0.json', help='dont run neighbor')
 parser.add_argument('--alpha', '-a', type=float, default=0.7, help='alpha')
 parser.add_argument('--beta', '-b', type=float, default=0.0, help='beta')
@@ -28,7 +28,7 @@ parser.add_argument('--sim_tags', '-simt', type=str, default='idf', help='method
 parser.add_argument('--sim_normalize', '-simn', type=bool, default=False, help='to normalizae simlarity or not')
 parser.add_argument('--fname', '-f', type=str, default='results.json', help='file name')
 args = parser.parse_args()
-# print(args) # when you want to debug
+print(args) # when you want to debug
 ### 1. data & preprocessing
 ### 1.1 load data
 print("Loading the Data...")
@@ -103,7 +103,7 @@ sim_tags  = args.sim_tags
 sim_normalize = args.sim_normalize
 
 ### 3.3 run NeighborKNN.predict() : returns pandas.DataFrame
-pred = NeighborKNN(song_k=song_k, tag_k=tag_k, rho=rho, \
+pred, err = NeighborKNN(song_k=song_k, tag_k=tag_k, rho=rho, \
                    song_k_step=song_k_step, tag_k_step=tag_k_step, \
                    weight_val_songs=weight_val_songs, weight_pred_songs=weight_pred_songs, \
                    weight_val_tags=weight_val_tags, weight_pred_tags=weight_pred_tags, \
@@ -118,6 +118,7 @@ pred = generate_answers(load_json(train_path), to_list(pred))
 
 print("Saving results...")
 write_json(pred, args.fname) # path???
+print(err)
 #print(pred)
 
 ### ==============================(save data)==============================
