@@ -107,8 +107,6 @@ class NeighborKNN:
         @returns : pandas.DataFrame; columns=['id', 'songs', 'tags']
         '''
 
-        err = []
-
         # TODO: Remove unsupported module 'tqdm'.
         if end:
             _range = tqdm(range(start, end)) if self.verbose else range(start, end)
@@ -121,7 +119,6 @@ class NeighborKNN:
 
         for uth in _range:
 
-            print(err)
 
             # song_k = self.song_k
             # tag_k  = self.tag_k
@@ -135,6 +132,7 @@ class NeighborKNN:
                 simTags_in_val  = np.array([self._sim(playlist_tags_in_val , vplaylist, self.sim_tags, opt='tags') for vplaylist in all_tags])
                 simTags = ((self.weight_pred_tags * simTags_in_pred) / (len(playlist_tags_in_pred))) + \
                           ((self.weight_val_tags * simTags_in_val) / (len(playlist_tags_in_val)))
+                print(simTags[np.isnan(simTags)])
                 songs = set()
 
                 try:
