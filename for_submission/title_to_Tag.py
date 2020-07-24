@@ -1,17 +1,15 @@
 import numpy as np
 import pandas as pd
-import os
 from khaiii import KhaiiiApi
-import json, re
-from collections import Counter
-from typing import *
-from tqdm import tqdm
+from typing import * # TODO: Remove
+
 
 class Title_to_tag:
-    def __init__(self, train1, val1):
 
-        train = pd.read_json(train1, encoding='utf-8')
-        val = pd.read_json(val1, encoding='utf-8')
+    def __init__(self, train_path, val_path):
+
+        train = pd.read_json(train_path, encoding='utf-8')
+        val = pd.read_json(val_path, encoding='utf-8')
 
         self.train_tags = train["tags"].copy()
         self.val_id = val["id"].copy()
@@ -19,8 +17,6 @@ class Title_to_tag:
         self.val_songs = val["songs"].copy()
         self.val_tags = val["tags"].copy()
         self.val_updt_date = val["updt_date"].copy()
-
-
 
     def re_sub(self, series: pd.Series) -> pd.Series:
         series = series.str.replace(pat=r'[ㄱ-ㅎ]', repl=r'', regex=True)  # ㅋ 제거용
@@ -65,7 +61,7 @@ class Title_to_tag:
 
       return born_tag
 
-    def change(self ):
+    def change(self):
         val = []
         self.train_tags_set = set(self.flatten(self.train_tags))
         for uth in range(0, len(self.val_id)):
@@ -88,7 +84,7 @@ class Title_to_tag:
 
             if len(born_tag) == 0:
               for i in range(len(val_title)-4):
-                if val_title[i:i+5] == "크리스마스":
+                if val_title[i:i+5] == "크리스마스": # khaiii ...
                   born_tag = [val_title[i:i+5]]
 
             val.append({
@@ -100,10 +96,4 @@ class Title_to_tag:
         return pd.DataFrame(val)
 
 if __name__ == "__main__":
-    train = pd.read_json("res/train.json")
-    val = pd.read_json("res/val.json")
-
-    Title_to_tag(train,val).change()
-
-
-
+    pass
