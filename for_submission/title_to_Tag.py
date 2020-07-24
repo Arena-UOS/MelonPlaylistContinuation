@@ -41,16 +41,6 @@ class Title_to_tag:
         result = [(morph.lex, morph.tag) for split in result for morph in split.morphs]  # (형태소, 품사) 튜플의 리스트
         return result
 
-    def get_all_tags(self, df, column):
-        tag_list = df[column].values.tolist()
-        tag_list = flatten(tag_list)
-        return tag_list
-
-    def lower(self, data):
-        data_list = data.values.tolist()
-        data_lower = [[j.lower() for j in i] for i in data_list]
-        return data_lower
-
     def make_tag(self, val_title):
       candidate_tag = val_title.split()
       original_tag = []
