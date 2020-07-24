@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from neighbor import Neighbor
-from neighbor_knn import NeighborKNN
+from knn import KNN
 from title_to_Tag import Title_to_tag
 
 from data_util import *
@@ -36,12 +36,11 @@ pow_beta  = 0.0
 
 ### 2.2 run Neighbor.predict() : returns pandas.DataFrame
 pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, \
-                train=train, val=val, song_meta=song_meta).predict(start=0, end=23015, auto_save=True)
+                train=train, val=val, song_meta=song_meta).predict()
 
-### 3. modeling : NeighborKNN
+### 3. modeling : KNN
 ### 3.1 hyperparameters: k, rho, weights
 ### 3.2 parameters: sim_songs, sim_tags, sim_normalize
-print("Run NeighborKNN ...")
 
 song_k = 500
 tag_k  = 90
@@ -56,13 +55,13 @@ sim_songs = 'idf'
 sim_tags  = 'idf'
 sim_normalize = True
 
-### 3.3 run NeighborKNN.predict() : returns pandas.DataFrame
-pred = NeighborKNN(song_k=song_k, tag_k=tag_k, rho=rho, \
+### 3.3 run KNN.predict() : returns pandas.DataFrame
+pred = KNN(song_k=song_k, tag_k=tag_k, rho=rho, \
                    song_k_step=song_k_step, tag_k_step=tag_k_step, \
                    weight_val_songs=weight_val_songs, weight_pred_songs=weight_pred_songs, \
                    weight_val_tags=weight_val_tags, weight_pred_tags=weight_pred_tags, \
                    sim_songs=sim_songs, sim_tags=sim_tags, sim_normalize=sim_normalize, \
-                   train=train, val=val, song_meta=song_meta, pred=pred).predict(start=0, end=23015, auto_save=True)
+                   train=train, val=val, song_meta=song_meta, pred=pred).predict()
 
 ### 4. post-processing
 ### 4.1 convert "tag_id" to "tag"

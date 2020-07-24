@@ -3,36 +3,27 @@ import pandas as pd
 import os
 from collections import Counter
 from data_util import tag_id_meta
-from warnings import warn
-
-warn("Unsupported module 'tqdm' is used.")
-from tqdm import tqdm
 
 
-class NeighborKNN:
+class KNN:
     '''
     K Nearest Neighbor
-    version NeighborKNN-1.0 updates
-    + song to tag prediction
-    + tag to song prediction
     '''
 
-    __version__ = "NeighborKNN-1.0"
+    __version__ = "KNN-2.0"
     
     def __init__(self, song_k, tag_k, rho=0.4, \
                  song_k_step=50, tag_k_step=10, \
                  weight_val_songs=0.5, weight_pred_songs=0.5, \
                  weight_val_tags=0.5, weight_pred_tags=0.5, \
-                 sim_songs="idf", sim_tags="cos", sim_normalize=False, \
-                 train=None, val=None, song_meta=None, pred=None, \
-                 verbose=True, version_check=True):
+                 sim_songs="idf", sim_tags="idf", sim_normalize=False, \
+                 train=None, val=None, song_meta=None, pred=None):
         '''
-        k : int
+        song_k, tag_k, song_k_step, tag_k_step : int
         rho : float; 0.4(default) only for idf
-        alpha, beta : float; 0.5(default)
-        sim_songs, sim_tags : "cos"(default), "idf", "jaccard"
-        sim_normalize : boolean; when sim == "cos" or "idf"
-        verbose : boolean
+        weights : float
+        sim_songs, sim_tags : "idf"(default), "cos"
+        sim_normalize : boolean;
         '''
         ### data sets
         self.train_id    = train["id"].copy()
@@ -66,16 +57,12 @@ class NeighborKNN:
         self.sim_tags      = sim_tags
         self.sim_normalize = sim_normalize
 
-        self.verbose = verbose
-        self.__version__ = NeighborKNN.__version__
-
-        if version_check:
-            print(f"NeighborKNN version: {NeighborKNN.__version__}")
+        self.__version__ = KNN.__version__
         
         _, id_to_tag = tag_id_meta(train, val)
 
-        TOTAL_SONGS = song_meta.shape[0]     # total number of songs
-        TOTAL_TAGS  = len(id_to_tag)  # total number of tags
+        TOTAL_SONGS = song_meta.shape[0]  # total number of songs
+        TOTAL_TAGS  = len(id_to_tag)      # total number of tags
 
         ### transform date format in val
         for idx in self.val_id.index:
@@ -98,30 +85,18 @@ class NeighborKNN:
         del train, val, song_meta, pred
 
 
-    def predict(self, start=0, end=None, auto_save=False, auto_save_step=500, auto_save_fname='auto_save'):
+    def predict(self):
         '''
-        start, end : range(start, end). if end = None, range(start, end of val)
-        auto_save : boolean; False(default)
-        auto_save_step : int; 500(default)
-        auto_save_fname : string (without extension); 'auto_save'(default)
         @returns : pandas.DataFrame; columns=['id', 'songs', 'tags']
         '''
 
-        # TODO: Remove unsupported module 'tqdm'.
-        if end:
-            _range = tqdm(range(start, end)) if self.verbose else range(start, end)
-        elif end == None:
-            _range = tqdm(range(start, self.val_id.index.stop)) if self.verbose else range(start, self.val_id.index.stop)
+        _range = range(self.val_id.size)
 
         pred = []
         all_songs = [set(songs) for songs in self.train_songs] # list of set
         all_tags =  [set(tags) for tags in self.train_tags]    # list of set
 
         for uth in _range:
-
-
-            # song_k = self.song_k
-            # tag_k  = self.tag_k
 
             # predict songs by tags
             if self.val_songs[uth] == [] and self.val_tags[uth] != []:
@@ -132,7 +107,6 @@ class NeighborKNN:
                 simTags_in_val  = np.array([self._sim(playlist_tags_in_val , vplaylist, self.sim_tags, opt='tags') for vplaylist in all_tags])
                 simTags = ((self.weight_pred_tags * simTags_in_pred) / (len(playlist_tags_in_pred))) + \
                           ((self.weight_val_tags * simTags_in_val) / (len(playlist_tags_in_val)))
-                print(simTags[np.isnan(simTags)])
                 songs = set()
 
                 try:
@@ -216,9 +190,6 @@ class NeighborKNN:
                 "songs" : self.pred_songs[uth],
                 "tags" : self.pred_tags[uth]
                 })
-
-            if (auto_save == True) and ((uth + 1) % auto_save_step == 0):
-                self._auto_save(pred, auto_save_fname)
         
         return pd.DataFrame(pred)
     
@@ -227,7 +198,7 @@ class NeighborKNN:
         '''
         u : set (playlist in train data)
         v : set (playlist in test data)
-        sim : string; "cos", "idf", "jaccard" (kind of similarity)
+        sim : string; "cos", "idf"
         opt : string; "songs", "tags"
         '''
 
@@ -254,60 +225,6 @@ class NeighborKNN:
                     return 0
             else:
                 return freq.sum()
-        
-        elif sim == "jaccard":
-            return len(u & v) / len(u | v)
-    
-    def _auto_save(self, pred, auto_save_fname):
-        '''
-        pred : list of dictionaries
-        auto_save_fname : string
-        '''
-        
-        if not os.path.isdir("./_temp"):
-            os.mkdir('./_temp')
-        pd.DataFrame(pred).to_json(f'_temp/{auto_save_fname}.json', orient='records')
-
 
 if __name__=="__main__":
-
-    from data_util import *
-
-    train = pd.read_json("res/train.json")
-    val   = pd.read_json("res/val.json")
-
-    tag_to_id, id_to_tag = tag_id_meta(train, val)
-
-    ### 4. modeling : NeighborKNN
-    ### 4.1 hyperparameters: k, rho, weights
-    ### 4.2 parameters: sim_songs, sim_tags, sim_normalize
-    song_k = 100
-    tag_k  = 100
-    song_k_step = 100
-    tag_k_step  = 100
-    rho = 0.4
-    weight_val_songs  = 0.9
-    weight_pred_songs = 1 - weight_val_songs
-    weight_val_tags   = 0.7
-    weight_pred_tags  = 1 - weight_val_tags
-    sim_songs = "idf"
-    sim_tags = "idf"
-    sim_normalize = False
-
-    ### 4.3 run NeighborKNN.predict() : returns pandas.DataFrame
-    pred = NeighborKNN(song_k=song_k, tag_k=tag_k, rho=rho, \
-                       song_k_step=song_k_step, tag_k_step=tag_k_step, \
-                       weight_val_songs=weight_val_songs, weight_pred_songs=weight_pred_songs, \
-                       weight_val_tags=weight_val_tags, weight_pred_tags=weight_pred_tags, \
-                       sim_songs=sim_songs, sim_tags=sim_tags, sim_normalize=sim_normalize, \
-                       train=train, val=val, song_meta=song_meta, pred=pred).predict(start=0, end=None, auto_save=True)
-    pred = convert_id_to_tag(pred, id_to_tag)
-    # print(pred)
-
-    ### ==============================(save data)==============================
-    version = NeighborKNN.__version__
-    version = version[version.find('-') + 1: version.find('.')]
-    path = "."
-    fname2 = f"neighbor-knn{version}_k{song_k}-{tag_k}step{song_k_step}-{tag_k_step}rho{int(rho * 10)}s{int(weight_val_songs * 10)}t{int(weight_val_tags * 10)}_{sim_songs}{sim_tags}{sim_normalize}"
-    pred.to_json(f'{path}/{fname2}.json', orient='records')
-    ### ======================================================================
+    pass

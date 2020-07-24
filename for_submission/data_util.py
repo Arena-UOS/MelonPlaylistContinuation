@@ -2,9 +2,10 @@ from arena_util import most_popular, remove_seen
 
 
 def tag_id_meta(train, val):
-
-    # train, val : list of pandas.DataFrame
-    # @returns : (dictionary, dictionary)
+    '''
+    train, val : list of pandas.DataFrame
+    @returns : (dictionary, dictionary)
+    '''
 
     tag_to_id = {}
     id_to_tag = {}
@@ -22,9 +23,11 @@ def tag_id_meta(train, val):
 
 
 def convert_tag_to_id(data, tag_to_id):
-
-    # data : pandas.DataFrame
-    # tag_to_id : dictionary
+    '''
+    data : pandas.DataFrame
+    tag_to_id : dictionary
+    @returns : pandas.DataFrame
+    '''
 
     data = data.copy()
     for idx in data.index:
@@ -36,9 +39,11 @@ def convert_tag_to_id(data, tag_to_id):
 
 
 def convert_id_to_tag(data, id_to_tag):
-
-    # data : pandas.DataFrame
-    # id_to_tag : dictionary
+    '''
+    data : pandas.DataFrame
+    id_to_tag : dictionary
+    @returns : pandas.DataFrame
+    '''
 
     data = data.copy()
     for idx in data.index:
@@ -50,6 +55,10 @@ def convert_id_to_tag(data, id_to_tag):
 
 
 def to_list(df):
+    '''
+    df : pandas.DataFrame
+    @returns : list
+    '''
 
     lst = []
     for idx in df.index:

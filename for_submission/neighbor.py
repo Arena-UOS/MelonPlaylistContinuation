@@ -2,31 +2,19 @@ import numpy as np
 import pandas as pd
 import os
 from data_util import tag_id_meta
-from warnings import warn
-
-warn("Unsupported module 'tqdm' is used.")
-from tqdm import tqdm
 
 
 class Neighbor:
     '''
     Neighbor-based Collaborative Filtering
-    version Neighbor-3.0 updates
-    + tag prediction
-    + preprocessing for tag prediction
     '''
 
     __version__ = "Neighbor-3.0"
 
-
-    # TODO: Remove unnecessary parameters
-    def __init__(self, pow_alpha, pow_beta, train=None, val=None, song_meta=None, \
-                 verbose=True, version_check=True):
+    def __init__(self, pow_alpha, pow_beta, train=None, val=None, song_meta=None)
         '''
         pow_alpha, pow_beta : float (0<= pow_alpha, pow_beta <= 1)
         train, val, song_meta : pandas.DataFrame
-        verbose : boolean; True(default)
-        version_check : boolean; True(default)
         '''
         ### 1. data sets
         self.train_id = train["id"].copy()
@@ -45,7 +33,6 @@ class Neighbor:
         self.pow_alpha = pow_alpha
         self.pow_beta = pow_beta
 
-        self.verbose = verbose
         self.__version__ = Neighbor.__version__
 
         if not (0 <= self.pow_alpha <= 1):
@@ -88,34 +75,20 @@ class Neighbor:
         self.MAX_TAGS_FREQ   = MAX_TAGS_FREQ
         self.TOTAL_PLAYLISTS = TOTAL_PLAYLISTS
 
-        ### 3. version check TODO: Remove unnecessity.
-        if version_check:
-            print(f"Neighbor version: {Neighbor.__version__}")
-        
         del train, val, song_meta
-            
 
-    # TODO: Remove parameters
-    def predict(self, start=0, end=None, auto_save=False, auto_save_step=500, auto_save_fname='auto_save'):
+
+    def predict(self):
         '''
-        start, end : range(start, end). if end = None, range(start, end of val)
-        auto_save : boolean; False(default)
-        auto_save_step : int; 500(default)
-        auto_save_fname : string (without extension); 'auto_save'(default)
         @returns : pandas.DataFrame; columns=['id', 'songs', 'tags']
         '''
 
-        # TODO: Remove unsupported module 'tqdm'.
-        if end:
-            _range = tqdm(range(start, end)) if self.verbose else range(start, end)
-        elif end == None:
-            _range = tqdm(range(start, self.val_id.index.stop)) if self.verbose else range(start, self.val_id.index.stop)
+        _range = range(self.val_id.size)
 
         pred = []
         all_songs = [set(songs) for songs in self.train_songs]  # list of set
         all_tags  = [set(tags)  for tags  in self.train_tags ]  # list of set
 
-        # TODO: use variables instead of constants -> DONE
         TOTAL_SONGS     = self.TOTAL_SONGS      # total number of songs
         MAX_SONGS_FREQ  = self.MAX_SONGS_FREQ   # max frequency of songs for all playlists in train
         TOTAL_TAGS      = self.TOTAL_TAGS       # total number of tags
@@ -139,8 +112,6 @@ class Neighbor:
                     "songs" : [],
                     "tags" : []
                 })
-                if (auto_save == True) and ((uth + 1) % auto_save_step == 0):
-                    self._auto_save(pred, auto_save_fname)
                 continue
 
             if playlist_size_songs != 0:
@@ -228,9 +199,6 @@ class Neighbor:
                 "tags" : pred_tags
             })
 
-            if (auto_save == True) and ((uth + 1) % auto_save_step == 0):
-                self._auto_save(pred, auto_save_fname)
-
         return pd.DataFrame(pred)
 
     def _inner_product_feature_vector(self, v1, v2):
@@ -242,53 +210,6 @@ class Neighbor:
             if key in v2:
                 result += (v1[key] * v2[key])
         return result
-    
-    # TODO: Remove unnecessity
-    def _auto_save(self, pred, auto_save_fname):
-        '''
-        pred : list of dictionaries
-        auto_save_fname : string
-        '''
-        if not os.path.isdir("./_temp"):
-            os.mkdir('./_temp')
-        pd.DataFrame(pred).to_json(f'_temp/{auto_save_fname}.json', orient='records')
-
 
 if __name__=="__main__":
-
-    from data_util import *
-
-    ### 1. data & preprocessing
-    ### 1.1 load data
-    song_meta = pd.read_json("res/song_meta.json")
-    train = pd.read_json("res/train.json")
-    val = pd.read_json("res/val.json")
-    # test = pd.read_json("res/test.json")
-
-    ### 1.2 convert "tag" to "tag_id"
-    tag_to_id, id_to_tag = tag_id_meta(train, val)
-    new_train = convert_tag_to_id(train, tag_to_id)
-    new_val   = convert_tag_to_id(val  , tag_to_id)
-
-
-    ### 2. modeling : Neighbor
-    ### 2.1 hyperparameters: pow_alpha, pow_beta
-    pow_alpha = 0.7
-    pow_beta = 0.0
-
-    ### 2.2 run Neighbor.predict() : returns pandas.DataFrame
-    pred = Neighbor(pow_alpha=pow_alpha, pow_beta=pow_beta, \
-                    train=new_train, val=new_val, song_meta=song_meta).predict(start=0, end=None, auto_save=True)
-
-    ### 3. post-processing
-    ### 3.1 convert "tag_id" to "tag"
-    pred = convert_id_to_tag(pred, id_to_tag)
-    # print(pred)
-
-    ### ==============================(save data)==============================
-    version = Neighbor.__version__
-    version = version[version.find('-') + 1: version.find('.')]
-    path = "."
-    fname1 = f"neighbor{version}_a{int(pow_alpha * 10)}b{int(pow_beta * 10)}"
-    pred.to_json(f'{path}/{fname1}.json', orient='records')
-    ### ======================================================================
+    pass
