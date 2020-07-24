@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from khaiii import KhaiiiApi
-from typing import * # TODO: Remove
 
 
 class Title_to_tag:
@@ -18,18 +17,18 @@ class Title_to_tag:
         self.val_tags = val["tags"].copy()
         self.val_updt_date = val["updt_date"].copy()
 
-    def re_sub(self, series: pd.Series) -> pd.Series:
+    def re_sub(self, series):
         series = series.str.replace(pat=r'[ㄱ-ㅎ]', repl=r'', regex=True)  # ㅋ 제거용
         series = series.str.replace(pat=r'[^\w\s]', repl=r'', regex=True)  # 특수문자 제거
         series = series.str.replace(pat=r'[ ]{2,}', repl=r' ', regex=True)  # 공백 제거
         series = series.str.replace(pat=r'[\u3000]+', repl=r'', regex=True)  # u3000 제거
         return series
 
-    def flatten(self, list_of_list: List) -> List:
+    def flatten(self, list_of_list):
         flatten = [j for i in list_of_list for j in i]
         return flatten
 
-    def get_token(self, title: str, tokenizer) -> List[Tuple]:
+    def get_token(self, title, tokenizer):
         if len(title) == 0 or title == ' ':  # 제목이 공백인 경우 tokenizer에러 발생
             return []
 
