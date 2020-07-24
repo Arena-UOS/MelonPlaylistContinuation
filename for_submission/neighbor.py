@@ -10,7 +10,7 @@ class Neighbor:
 
     __version__ = "Neighbor-3.0"
 
-    def __init__(self, pow_alpha, pow_beta, train=None, val=None, song_meta=None)
+    def __init__(self, pow_alpha, pow_beta, train=None, val=None, song_meta=None):
         '''
         pow_alpha, pow_beta : float (0<= pow_alpha, pow_beta <= 1)
         train, val, song_meta : pandas.DataFrame
