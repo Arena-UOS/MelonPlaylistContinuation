@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import os
 from data_util import tag_id_meta
 
 

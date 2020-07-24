@@ -10,17 +10,18 @@ from arena_util import load_json, write_json
 
 ### 1. data & preprocessing
 ### 1.1 load data
-train_path = 'res/train.json'
-val_path   = 'res/test.json'
+song_meta_path = 'res/song_meta.json'
+train_path     = 'res/train.json'
+val_path       = 'res/test.json'
 
-song_meta = load_json('res/song_meta.json')
+song_meta = load_json(song_meta_path)
 train     = load_json(train_path)
 
 song_meta = pd.DataFrame(song_meta)
 train     = pd.DataFrame(train)
 
 ### 1.2 only_title chage to tags
-val = Title_to_tag(train1=train_path, val1=val_path).change()
+val = Title_to_tag(train_path=train_path, val_path=val_path).change()
 
 
 ### 1.3 convert "tag" to "tag_id"
