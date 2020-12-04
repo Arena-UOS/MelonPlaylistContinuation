@@ -1,5 +1,8 @@
 # MelonPlaylistContinuation
 
+## Reference
+* [Efficient K-NN for Playlist Continuation](https://eprints.sztaki.hu/9560/1/Kelen_1_30347064_ny.pdf)
+
 ## Version Updates
 * neighbor&#46;py : version Neighbor-2.0 &#8594; version Neighbor-3.0
 * neighbor_knn&#46;py : version NeighborKNN-1.0
